@@ -1,0 +1,135 @@
+-- Nome: Ana Luiza de Lima da Rocha.
+-- curso: Análise e desenvolvimentos de sistemas.
+-- Drop das tabelas, para não dar bug caso eu queira rodar novamente.
+
+DROP TABLE IF EXISTS TelefoneCliente;
+DROP TABLE IF EXISTS Entrega;
+DROP TABLE IF EXISTS ItensPedido;
+DROP TABLE IF EXISTS Pedido;
+DROP TABLE IF EXISTS Cliente;
+DROP TABLE IF EXISTS Endereco;
+DROP TABLE IF EXISTS Status;
+DROP TABLE IF EXISTS TelefoneEntregador;
+DROP TABLE IF EXISTS Cardapio;
+DROP TABLE IF EXISTS Entregador;
+
+-- Criação das tabelas.
+CREATE TABLE sistemadelivery.Entregador(
+codEntregador SMALLINT PRIMARY KEY,
+nome VARCHAR(80) NOT NULL
+);
+
+CREATE TABLE sistemadelivery.Endereco(
+codEndereco INT AUTO_INCREMENT PRIMARY KEY,
+CEP INT NOT NULL,
+Municipio VARCHAR(75) NOT NULL,
+UF CHAR(2) NOT NULL,
+logradouro VARCHAR(90) NOT NULL
+);
+
+CREATE TABLE sistemadelivery.Status(
+codStatus INT PRIMARY KEY,
+descricao VARCHAR(40)
+);
+
+CREATE TABLE sistemadelivery.Cliente(
+codCliente INT AUTO_INCREMENT PRIMARY KEY,
+nome VARCHAR(80) NOT NULL,
+numeroCasa INT,
+codEndereco INT NOT NULL,
+FOREIGN KEY (codEndereco) REFERENCES sistemadelivery.Endereco(codEndereco)
+);
+
+CREATE TABLE sistemadelivery.TelefoneCliente(
+telefone CHAR(11) PRIMARY KEY,
+codCliente INT NOT NULL,
+FOREIGN KEY (codCliente) REFERENCES sistemadelivery.Cliente(codCliente)
+);
+
+CREATE TABLE sistemadelivery.TelefoneEntregador(
+telefone CHAR(11) PRIMARY KEY,
+codEntregador SMALLINT NOT NULL,
+FOREIGN KEY (codEntregador) REFERENCES sistemadelivery.Entregador(codEntregador)
+);
+
+CREATE TABLE sistemadelivery.Pedido(
+codPedido INT AUTO_INCREMENT PRIMARY KEY,
+dataEmissao DATE,
+codStatus INT NOT NULL,
+codCliente INT NOT NULL,
+FOREIGN KEY (codStatus) REFERENCES sistemadelivery.Status(codStatus),
+FOREIGN KEY (codCliente) REFERENCES sistemadelivery.Cliente(codCliente)
+);
+
+CREATE TABLE sistemadelivery.Cardapio(
+codCardapio TINYINT PRIMARY KEY,
+nomeSanduiche VARCHAR(50) NOT NULL,
+preco DECIMAL(6,2) NOT NULL
+);
+
+CREATE TABLE sistemadelivery.ItensPedido(
+quantidade SMALLINT NOT NULL,
+codPedido INT NOT NULL,
+codCardapio TINYINT NOT NULL,
+FOREIGN KEY (codPedido) REFERENCES sistemadelivery.Pedido(codPedido),
+FOREIGN KEY (codCardapio) REFERENCES sistemadelivery.Cardapio(codCardapio)
+);
+
+CREATE TABLE sistemadelivery.Entrega(
+codPedido INT NOT NULL,
+codEntregador SMALLINT NOT NULL,
+FOREIGN KEY (codPedido) REFERENCES sistemadelivery.Pedido(codPedido),
+FOREIGN KEY (codEntregador) REFERENCES sistemadelivery.Entregador(codEntregador)
+);
+
+-- 1. Endereco
+INSERT INTO sistemadelivery.Endereco (CEP, Municipio, UF, logradouro)
+VALUES (84970000, 'Santana', 'PR', 'ARTHUR MESSIAS');
+
+-- 2. Entregador
+INSERT INTO sistemadelivery.Entregador (codEntregador, nome)
+VALUES (1, 'MARCIO MOTO');
+
+-- 3. Status
+INSERT INTO sistemadelivery.Status (codStatus, descricao)
+VALUES (0, 'Em preparação'), (1, 'Em entrega'), (2, 'Entregue');
+
+-- 4. Cardapio
+INSERT INTO sistemadelivery.Cardapio (codCardapio, nomeSanduiche, preco)
+VALUES (1, 'X-Burguer', 12.50);
+
+-- 5. Cliente
+INSERT INTO sistemadelivery.Cliente (nome, numeroCasa, codEndereco)
+VALUES ('ANA LIMA', 123, 1);
+
+-- 6. TelefoneCliente
+INSERT INTO sistemadelivery.TelefoneCliente (telefone, codCliente)
+VALUES ('43991496639', 1);
+
+-- 7. TelefoneEntregador
+INSERT INTO sistemadelivery.TelefoneEntregador (telefone, codEntregador)
+VALUES ('43991496638', 1);
+
+-- 8. Pedido
+INSERT INTO sistemadelivery.Pedido (dataEmissao, codStatus, codCliente)
+VALUES ('2025-04-19', 0, 1);
+
+-- 9. ItensPedido
+INSERT INTO sistemadelivery.ItensPedido (quantidade, codPedido, codCardapio)
+VALUES (2, 1, 1);
+
+-- 10. Entrega
+INSERT INTO sistemadelivery.Entrega (codPedido, codEntregador)
+VALUES (1, 1);
+
+-- Consulta de pedidos em preparação.
+
+SELECT 
+  Pedido.codPedido,
+  Pedido.dataEmissao,
+  Cliente.nome AS nomeCliente,
+  Status.descricao AS statusPedido
+FROM sistemadelivery.Pedido
+JOIN sistemadelivery.Cliente ON Pedido.codCliente = Cliente.codCliente
+JOIN sistemadelivery.Status ON Pedido.codStatus = Status.codStatus
+WHERE Pedido.codStatus = 0;
