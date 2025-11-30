@@ -3,6 +3,7 @@ Com o objetivo principal de implementar um sistema delivery, permitindo gerencia
 utilizando um modelo relacional em MySQL.
 
 Para o desenvolvimento foi Utilizado o MySQL Workbench, incluindo o modelo lógico e a implementação das tabelas com chaves primárias e estrangeiras.
+E para o desenvolvimento do modelo conceitual utilizei o BrModelos.
 
 Status: Projeto concluído e utilizado somente para fins acadêmicos.
 Data: 19/04/2025.
